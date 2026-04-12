@@ -1,0 +1,22 @@
+{
+  "user": {
+    "_id": "69c1308c56189087e83038c3",
+    "name": "Bachanpal",
+    "address": {
+      "city": "suart",
+      "pincode": "394210"
+    },
+    "businessCategory": [
+      "Electronic Products"
+    ],
+    "isAdminApproved": true,
+    "paymentVerified": true,
+    "isDeleted": false,
+    "isPartial": false,
+    "registrationStep": 4
+  },
+  "category": {
+    "_id": "676163786e6fbd58487e84d5",
+    "categoryName": "Electronic Products"
+  }
+}
