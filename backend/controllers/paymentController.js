@@ -615,6 +615,7 @@ const verifyPayment = async (req, res) => {
       {
         paymentVerified: true,
         paymentExpiry: expiryDate,
+        registrationStep: 4, // Move user to Step 4 (KYC) after successful payment
       },
       { new: true }
     );

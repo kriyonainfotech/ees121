@@ -87,9 +87,12 @@ function Registration({ onNext, isStep }) {
 
         if (response.data.success) {
             console.log("[DEBUG] Step 1 Success:", response.data);
-            // Store token if it's a new registration
+            // Store token and userId for subsequent steps
             if (response.data.token) {
                 sessionStorage.setItem("regToken", response.data.token);
+            }
+            if (response.data.user?.id) {
+                setFormData(prev => ({ ...prev, userId: response.data.user.id }));
             }
             toast.success(token ? "Details updated!" : "Step 1 complete!");
             

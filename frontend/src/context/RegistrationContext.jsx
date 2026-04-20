@@ -6,6 +6,9 @@ export const RegistrationContext = createContext();
 // 2. Create the provider component that will hold all the data
 export const RegistrationProvider = ({ children }) => {
     const [formData, setFormData] = useState({
+        // Internal tracking
+        userId: "",
+
         // Fields from Registration.jsx
         name: "",
         email: "",

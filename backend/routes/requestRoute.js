@@ -22,6 +22,7 @@ const {
 } = require("../controllers/sendController");
 const { fixUserData } = require("../controllers/AuthController2");
 const router = express.Router();
+
 router.post("/sentRequest", verifyToken, sentRequest);
 router.post("/sentRequestMobile", sentRequestMobile);
 

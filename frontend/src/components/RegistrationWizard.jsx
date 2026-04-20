@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import Registration from "./Registration";
 import RegisterNextPage from "./RegisterNextPage";
 import RegisterAadhar from "./RegisterAadhar";
+import PaymentIntegration from "./PaymentIntegration";
 import { RegistrationContext } from "../context/RegistrationContext";
 import { UserContext } from "../UserContext";
 
@@ -27,13 +28,19 @@ const RegistrationWizard = () => {
         country: user.address?.country || "",
         pincode: user.address?.pincode || "",
         businessName: user.businessName || "",
-        businessCategory: user.businessCategory?.[0] || "", // Assuming it's an array or string
+        businessCategory: user.businessCategory?.[0] || "",
         businessAddress: user.businessAddress || "",
         businessDetaile: user.businessDetaile || "",
-        referralCode: user.referredBy?.[0] || prev.referralCode // Keep current if missing
+        referralCode: user.referredBy?.[0] || prev.referralCode
       }));
 
       setStep(user.registrationStep || 1);
+      
+      // Auto-skip payment if already verified and at payment step
+      if (user.registrationStep === 3 && user.paymentVerified) {
+        console.log("[DEBUG] Wizard: Payment already verified, moving to KYC");
+        setStep(4);
+      }
       return;
     }
 
@@ -67,12 +74,16 @@ const RegistrationWizard = () => {
       case 2:
         return <RegisterNextPage onNext={handleNext} onBack={handleBack} isStep={true} />;
       case 3:
+        return <PaymentIntegration onNext={handleNext} onBack={handleBack} isStep={true} />;
+      case 4:
         return <RegisterAadhar onBack={handleBack} isStep={true} />;
       default:
         console.log("[DEBUG] Wizard: Rendering Default Step (1)");
         return <Registration onNext={handleNext} isStep={true} />;
     }
   };
+
+  const stepLabels = ["Personal", "Business", "Payment", "Documents"];
 
   return (
     <div className="registration-wizard bg-gray-50 min-h-screen">
@@ -82,18 +93,18 @@ const RegistrationWizard = () => {
             {/* Connector Line Area */}
             <div className="absolute top-5 left-0 w-full h-0.5 bg-gray-200 z-0" />
             <div className={`absolute top-5 left-0 h-0.5 bg-green-600 z-0 transition-all duration-500`} style={{ 
-                width: step === 1 ? '0%' : step === 2 ? '50%' : '100%' 
+                width: step === 1 ? '0%' : step === 2 ? '33%' : step === 3 ? '66%' : '100%' 
             }} />
 
-            {[1, 2, 3].map((s) => (
+            {[1, 2, 3, 4].map((s) => (
                 <div key={s} className="flex flex-col items-center flex-1 z-10">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 transition-all duration-300 ${
                         step >= s ? "bg-green-600 border-green-600 text-white shadow-lg" : "bg-white border-gray-300 text-gray-400"
                     }`}>
                         {s}
                     </div>
-                    <span className={`text-xs mt-2 font-bold uppercase tracking-wider ${step >= s ? "text-green-700 font-extrabold" : "text-gray-400"}`}>
-                        {s === 1 ? "Personal" : s === 2 ? "Business" : "Documents"}
+                    <span className={`text-[10px] sm:text-xs mt-2 font-bold uppercase tracking-wider ${step >= s ? "text-green-700 font-extrabold" : "text-gray-400"}`}>
+                        {stepLabels[s-1]}
                     </span>
                 </div>
             ))}

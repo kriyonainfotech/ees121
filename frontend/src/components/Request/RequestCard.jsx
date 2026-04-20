@@ -245,6 +245,7 @@ import starSilver from "../../../public/startSilver.png";
 import { toast } from "react-toastify";
 import { UserContext } from "../../UserContext";
 import axios from "axios";
+const backend_API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 import { getAuthToken } from '../../utils/auth';
 

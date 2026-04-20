@@ -523,7 +523,7 @@ const updateRegistrationStep3 = async (req, res) => {
       ...(fileKeys.profilePic && { profilePic: fileKeys.profilePic }),
       ...(fileKeys.frontAadhar && { frontAadhar: fileKeys.frontAadhar }),
       ...(fileKeys.backAadhar && { backAadhar: fileKeys.backAadhar }),
-      registrationStep: 4, // Finalized!
+      registrationStep: 5, // Finalized!
       isPartial: false
     };
 
