@@ -267,7 +267,7 @@ const PaymentIntegration = ({ onNext, onBack, isStep }) => {
                                 <p className="text-xs text-gray-400 text-center mb-3 uppercase tracking-wider font-semibold">Accepted Payment Methods</p>
                                 <div className="flex items-center justify-center gap-6 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" className="h-5" alt="PayPal" />
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Visa.svg" className="h-5" alt="Visa" />
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" className="h-5" alt="Visa" />
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" className="h-5" alt="Mastercard" />
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" className="h-5" alt="UPI" />
                                 </div>
