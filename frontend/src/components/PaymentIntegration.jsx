@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { UserContext } from "../UserContext";
 import { RegistrationContext } from "../context/RegistrationContext";
-import logo from "../../public/ees-logo.png";
+import logo from "../../public/ess-121.png";
 
 const backend_API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID;
@@ -143,16 +143,18 @@ const PaymentIntegration = ({ onNext, onBack, isStep }) => {
                             {/* Decorative circles */}
                             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32"></div>
                             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
-                            
+
                             <div className="relative z-10 text-center">
                                 <div className="mb-8">
-                                    <img src={logo} width={100} alt="EES Logo" className="mb-6 drop-shadow-lg mx-auto brightness-0 invert" />
+                                    <div className="flex justify-center">
+                                        <img src={logo} width={100} alt="EES Logo" className="mb-4 bg-white pe-1 pt-1 rounded-xl " />
+                                    </div>
                                     <h2 className="text-3xl lg:text-4xl font-bold mb-3 leading-tight">
                                         {isPaid ? "Payment Verified" : "Complete Your Registration"}
                                     </h2>
                                     <p className="text-green-50 text-sm lg:text-base leading-relaxed">
-                                        {isPaid 
-                                            ? "Thank you! Your payment is confirmed. Please proceed to the final step." 
+                                        {isPaid
+                                            ? "Thank you! Your payment is confirmed. Please proceed to the final step."
                                             : "One simple payment to unlock 1 year access to all EES services and benefits."}
                                     </p>
                                 </div>
@@ -163,7 +165,7 @@ const PaymentIntegration = ({ onNext, onBack, isStep }) => {
                                         <span className="text-6xl font-black">₹{registrationFee}</span>
                                     </div>
                                     <div className="text-center">
-                                        <span className="text-xs uppercase tracking-widest text-green-100 font-semibold">One-Time Registration Fee</span>
+                                        <span className="text-xs uppercase tracking-widest text-green-100 font-semibold">Registration Fee for 1 yr membership</span>
                                         <p className="text-xs mt-2 text-green-200">GST Included • No Hidden Charges</p>
                                     </div>
                                 </div>
@@ -248,7 +250,7 @@ const PaymentIntegration = ({ onNext, onBack, isStep }) => {
                                         </>
                                     )}
                                 </button>
-                                
+
                                 {isStep && (
                                     <button
                                         onClick={onBack}
@@ -267,7 +269,7 @@ const PaymentIntegration = ({ onNext, onBack, isStep }) => {
                                 <p className="text-xs text-gray-400 text-center mb-3 uppercase tracking-wider font-semibold">Accepted Payment Methods</p>
                                 <div className="flex items-center justify-center gap-6 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" className="h-5" alt="PayPal" />
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" className="h-5" alt="Visa" />
+                                    <img src="/visa.png" className="h-5" alt="Visa" />
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" className="h-5" alt="Mastercard" />
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" className="h-5" alt="UPI" />
                                 </div>
