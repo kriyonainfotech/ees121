@@ -1,0 +1,40 @@
+t=2026-06-03T12:39:20+0530 lvl=info msg="no configuration paths supplied"
+t=2026-06-03T12:39:20+0530 lvl=info msg="using configuration at default config path" path="/Users/kirtannarola/Library/Application Support/ngrok/ngrok.yml"
+t=2026-06-03T12:39:20+0530 lvl=info msg="open config file" path="/Users/kirtannarola/Library/Application Support/ngrok/ngrok.yml" err=nil
+t=2026-06-03T12:39:20+0530 lvl=info msg="FIPS 140 mode" enabled=false
+t=2026-06-03T12:39:20+0530 lvl=info msg="starting web service" obj=web addr=127.0.0.1:4040 allow_hosts=[]
+t=2026-06-03T12:39:21+0530 lvl=info msg="client session established" obj=tunnels.session
+t=2026-06-03T12:39:21+0530 lvl=info msg="tunnel session started" obj=tunnels.session
+t=2026-06-03T12:39:21+0530 lvl=info msg="started tunnel" obj=tunnels name=command_line addr=http://localhost:5001 url=https://angelita-isobathythermal-unequably.ngrok-free.dev
+t=2026-06-03T12:39:21+0530 lvl=info msg="update available" obj=updater
+t=2026-06-03T12:39:22+0530 lvl=info msg=start pg=/api/tunnels id=1855872af6dc6429
+t=2026-06-03T12:39:22+0530 lvl=info msg=end pg=/api/tunnels id=1855872af6dc6429 status=200 dur=224.333µs
+t=2026-06-03T12:39:50+0530 lvl=info msg=start pg=/api/tunnels id=a81b9d76e918fcc5
+t=2026-06-03T12:39:50+0530 lvl=info msg=end pg=/api/tunnels id=a81b9d76e918fcc5 status=200 dur=575.458µs
+t=2026-06-03T13:16:04+0530 lvl=warn msg="failed to open private leg" id=93b67c857f02 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:05+0530 lvl=warn msg="failed to open private leg" id=ffcdd635df02 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:05+0530 lvl=warn msg="failed to open private leg" id=b76a84f1d308 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:05+0530 lvl=warn msg="failed to open private leg" id=cb71bd273223 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:05+0530 lvl=warn msg="failed to open private leg" id=9648ebc30d28 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:05+0530 lvl=warn msg="failed to open private leg" id=1a9849879ee2 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:05+0530 lvl=warn msg="failed to open private leg" id=494f1da0cf67 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:05+0530 lvl=warn msg="failed to open private leg" id=5054c9883b96 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:05+0530 lvl=warn msg="failed to open private leg" id=178daf536791 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:05+0530 lvl=warn msg="failed to open private leg" id=8bc067064336 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:09+0530 lvl=warn msg="failed to open private leg" id=18a9eb58a4b1 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:12+0530 lvl=warn msg="failed to open private leg" id=11dcb9c95b54 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:12+0530 lvl=warn msg="failed to open private leg" id=171c7d5cde51 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:12+0530 lvl=warn msg="failed to open private leg" id=461eb93aa000 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:12+0530 lvl=warn msg="failed to open private leg" id=16545932b6c7 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:12+0530 lvl=warn msg="failed to open private leg" id=8f2bb72cdcd4 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:12+0530 lvl=warn msg="failed to open private leg" id=2d0b8936d249 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:12+0530 lvl=warn msg="failed to open private leg" id=b41460668e15 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:12+0530 lvl=warn msg="failed to open private leg" id=b64ad8084598 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:12+0530 lvl=warn msg="failed to open private leg" id=52f9f43256ce privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:13+0530 lvl=warn msg="failed to open private leg" id=c8f71a4de810 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:13+0530 lvl=warn msg="failed to open private leg" id=95bc7ceedc81 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:13+0530 lvl=warn msg="failed to open private leg" id=6837ddd88417 privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:17+0530 lvl=warn msg="failed to open private leg" id=c343fb8823dd privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:19+0530 lvl=warn msg="failed to open private leg" id=3dabae1b283f privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:20+0530 lvl=warn msg="failed to open private leg" id=c8526b96b26c privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"
+t=2026-06-03T13:16:20+0530 lvl=warn msg="failed to open private leg" id=67c71629fd6c privaddr=localhost:5001 err="dial tcp [::1]:5001: connect: connection refused"

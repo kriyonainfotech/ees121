@@ -15,6 +15,7 @@ const {
   updateRoleByEmail,
   setUserStatus,
   approveUser,
+  rejectUserStep,
   updateProfileMobile,
   getUserMobile,
   setUserStatusMobile,
@@ -147,6 +148,7 @@ router.post(
 
 router.post("/loginUserweb", loginUserweb);
 router.put("/approveUser", approveUser);
+router.put("/rejectUserStep", rejectUserStep);
 
 router.post(
   "/updateProfile",

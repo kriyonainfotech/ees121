@@ -269,7 +269,9 @@ const loginUser = async (req, res) => {
     if (!user.isAdminApproved) {
       return res.status(403).json({
         success: false,
-        message: "Your account is not yet approved by the admin.",
+        message: user.rejectedStep
+          ? `Your registration step ${user.rejectedStep} was rejected: ${user.rejectedStepReason}. Please login via Website to update and resubmit.`
+          : "Your account is not yet approved by the admin.",
       });
     }
 
@@ -524,7 +526,9 @@ const updateRegistrationStep3 = async (req, res) => {
       ...(fileKeys.frontAadhar && { frontAadhar: fileKeys.frontAadhar }),
       ...(fileKeys.backAadhar && { backAadhar: fileKeys.backAadhar }),
       registrationStep: 5, // Finalized!
-      isPartial: false
+      isPartial: false,
+      rejectedStep: null,
+      rejectedStepReason: ""
     };
 
     const updatedUser = await UserModel.findByIdAndUpdate(user._id, updateFields, { new: true });
@@ -632,6 +636,39 @@ const approveUser = async (req, res) => {
     return res.status(500).send({
       success: false,
       message: "Error approving user",
+      error: error.message,
+    });
+  }
+};
+
+const rejectUserStep = async (req, res) => {
+  try {
+    const { userId, stepNumber, reason } = req.body;
+    if (!userId || !stepNumber) {
+      return res.status(400).json({ success: false, message: "Missing userId or stepNumber" });
+    }
+
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    user.registrationStep = stepNumber;
+    user.rejectedStep = stepNumber;
+    user.rejectedStepReason = reason || "";
+    user.isPartial = true;
+    user.isAdminApproved = false;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `User step ${stepNumber} rejected successfully.`,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error rejecting user step",
       error: error.message,
     });
   }
@@ -808,6 +845,7 @@ const getUser = async (req, res) => {
     });
   }
 };
+
 
 const getUserMobile = async (req, res) => {
   try {
@@ -1709,4 +1747,5 @@ module.exports = {
   updateRegistrationStep3,
   updateRegistrationStep1,
   checkUserStatus,
+  rejectUserStep,
 };

@@ -56,6 +56,7 @@ const Login = () => {
         const { isPartial } = response.data.user;
         
         if (isPartial) {
+          sessionStorage.setItem("regToken", response.data.token); // Fix for "Session expired"
           toast.info("Continuing your registration...");
           navigate("/register");
         } else {

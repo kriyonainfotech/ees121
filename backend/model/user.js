@@ -205,7 +205,9 @@ const userSchema = new mongoose.Schema(
 
     isDeleted: { type: Boolean, default: false },
     registrationStep: { type: Number, default: 1 },
-    isPartial: { type: Boolean, default: true }
+    isPartial: { type: Boolean, default: true },
+    rejectedStep: { type: Number, default: null },
+    rejectedStepReason: { type: String, default: "" }
   },
 
   { timestamps: true }

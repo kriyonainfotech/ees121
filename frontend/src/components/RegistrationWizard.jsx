@@ -36,8 +36,8 @@ const RegistrationWizard = () => {
 
       setStep(user.registrationStep || 1);
       
-      // Auto-skip payment if already verified and at payment step
-      if (user.registrationStep === 3 && user.paymentVerified) {
+      // Auto-skip payment if already verified and at payment step and not rejected specifically on payment
+      if (user.registrationStep === 3 && user.paymentVerified && user.rejectedStep !== 3) {
         console.log("[DEBUG] Wizard: Payment already verified, moving to KYC");
         setStep(4);
       }
@@ -87,6 +87,14 @@ const RegistrationWizard = () => {
 
   return (
     <div className="registration-wizard bg-gray-50 min-h-screen">
+      {/* Rejection Banner */}
+      {user?.rejectedStep && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 m-4 max-w-4xl mx-auto rounded shadow-sm" role="alert">
+          <p className="font-bold">Step {user.rejectedStep} was rejected by Admin</p>
+          <p>{user.rejectedStepReason || "Please review and complete this step again."}</p>
+        </div>
+      )}
+
       {/* Improved Progress Bar */}
       <div className="max-w-4xl mx-auto px-4 pt-10">
         <div className="flex items-center justify-between mb-8 relative">

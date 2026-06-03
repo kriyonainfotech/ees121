@@ -21,7 +21,9 @@ const UserDetailsModal = ({ user, onClose }) => {
     const [aadharNumber, setAadharNumber] = useState(user.aadharNumber || "");
     const [loading, setLoading] = useState(false);
     const [userId, setUserId] = useState(user._id);
-    const navigate = useNavigate()
+    const [rejectStep, setRejectStep] = useState("");
+    const [rejectReason, setRejectReason] = useState("");
+    const navigate = useNavigate();
 
     const aadharImages = [user.frontAadhar, user.backAadhar];
 
@@ -42,6 +44,32 @@ const UserDetailsModal = ({ user, onClose }) => {
         } catch (error) {
             console.log(error);
             toast(error?.response?.data?.message)
+        }
+    };
+
+    const handleRejectStep = async (userId) => {
+        if (!rejectStep) {
+            toast.error("Please select a step to reject");
+            return;
+        }
+        try {
+            const response = await axios.put(`${backend_API}/auth/rejectUserStep`, { 
+                userId, 
+                stepNumber: parseInt(rejectStep), 
+                reason: rejectReason 
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (response.status === 200) {
+                toast.success(response?.data?.message);
+                onClose(); // close the modal and we can refresh
+                window.location.reload(); // Quick way to refresh for now
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error?.response?.data?.message || "Failed to reject step");
         }
     };
 
@@ -151,6 +179,18 @@ const UserDetailsModal = ({ user, onClose }) => {
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <div className="mt-4 p-3 border rounded bg-red-50 flex flex-wrap gap-2 items-center">
+                    <h3 className="font-bold text-red-600 w-full mb-1">Reject Specific Step</h3>
+                    <select className="border p-2 rounded" value={rejectStep} onChange={(e) => setRejectStep(e.target.value)}>
+                        <option value="">Select Step to Reject</option>
+                        <option value="1">Step 1: Personal Details</option>
+                        <option value="2">Step 2: Business Details</option>
+                        <option value="3">Step 3: Payment</option>
+                        <option value="4">Step 4: Documents (Aadhar)</option>
+                    </select>
+                    <input type="text" className="border p-2 rounded flex-1" placeholder="Reason for rejection (e.g. Blurry photo)" value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} />
+                    <button onClick={() => handleRejectStep(user._id)} className="bg-red-500 text-white px-4 py-2 rounded font-semibold hover:bg-red-600">Reject Step</button>
                 </div>
                 <div className="flex justify-end mt-4 gap-1">
                     <button onClick={() => approveUser(user._id)} className="btn btn-primary w-full sm:w-auto">Approve</button>
