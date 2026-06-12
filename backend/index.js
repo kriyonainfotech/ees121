@@ -29,6 +29,8 @@ const corsOptions = {
     "https://ees121.com",
     "https://www.ees121.com",
     "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
   ],
   allowedHeaders: ["Content-Type", "Authorization"],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

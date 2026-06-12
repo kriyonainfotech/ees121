@@ -843,7 +843,7 @@ const AllUsers = () => {
                           <Link
                             to="/admin/users/addremark"
                             state={{ userId: user._id }}
-                            className="btn btn-sm btn-info"
+                            className="btn btn-sm btn-info text-white"
                           >
                             Add Remarks
                           </Link>

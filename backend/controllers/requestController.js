@@ -1287,8 +1287,8 @@ const getactiveRequests = async (req, res) => {
     const activeRequests = await Request.find({
       status: { $in: ["pending", "accepted"] },
     })
-      .populate("sender", "name avatar")
-      .populate("receiver", "name avatar")
+      .populate("sender", "name avatar phone")
+      .populate("receiver", "name avatar phone")
       .sort({ updatedAt: -1 }); // latest on top
 
     return res.status(200).json(activeRequests);

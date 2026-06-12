@@ -1030,12 +1030,15 @@ const verifyCapturedPayment = async (req, res) => {
 
 const paymentVerifeid = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { userId, paymentVerified } = req.body;
+    
+    // Determine the status (defaults to true if not provided for backwards compatibility)
+    const newStatus = paymentVerified !== undefined ? paymentVerified : true;
 
     // Update only the paymentVerified field
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
-      { $set: { paymentVerified: true } }, // Only updating this field
+      { $set: { paymentVerified: newStatus } }, // Update field based on input
       { new: true } // Return updated document
     );
 

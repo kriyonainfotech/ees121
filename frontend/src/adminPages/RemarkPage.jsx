@@ -1,10 +1,12 @@
 import { useState, useEffect, useContext } from "react";
+import { format } from "date-fns";
 import axios from "axios";
 import { UserContext } from "../UserContext.jsx";
 import AdminHeader from "../admincomponents/AdminHeader.jsx";
 import AdminSidebar from "../admincomponents/AdminSidebar.jsx";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import "../assets/Veryfymodal.css";
 const backend_API = import.meta.env.VITE_API_URL || "http://localhost:3000";;
 
 const RemarkPage = () => {
@@ -14,29 +16,17 @@ const RemarkPage = () => {
   const userId = location.state?.userId || user._id; // Use the user ID from state or context
   const [remarks, setRemarks] = useState([]);
   const [newRemark, setNewRemark] = useState("");
+  const [remarkToDelete, setRemarkToDelete] = useState(null);
 
   useEffect(() => {
     fetchRemarks();
   }, [userId]);
 
   const fetchRemarks = async () => {
-    console.log(userId, 'uid')
     try {
       const response = await axios.get(`${backend_API}/remark/user/${userId}`);
-      console.log(response.data.remarks, 'data');
       if (response.status === 200) {
-        const remarksWithDefaultStatus = response?.data?.remarks?.map(remark => ({
-          ...remark,
-          // Ensure userStatus is always an array, even if it's a single object for the user
-          userStatus: Array.isArray(remark.userStatus)
-            ? remark.userStatus.map(status => ({
-              ...status,
-              is_completed: status?.is_completed || false, // Ensure is_completed is always false if undefined
-            }))
-            : [remark.userStatus], // Wrap userStatus object in an array if it's a single object
-        }));
-
-        setRemarks(remarksWithDefaultStatus);
+        setRemarks(response.data.remarks || []);
       }
     } catch (error) {
       console.log("Error fetching remarks:", error);
@@ -44,58 +34,19 @@ const RemarkPage = () => {
   };
 
   const handleAddRemark = async () => {
+    if (!newRemark.trim()) return;
     try {
       const response = await axios.post(`${backend_API}/remark/create`, {
         userId,
         remark: newRemark,
       });
-      if (response.status === 200) {
-        const addedRemark = response.data.remarks;
-        // Process the remark to ensure correct structure
-        const processedRemark = {
-          ...addedRemark,
-          userStatus: addedRemark.userStatus.map(status => ({
-            ...status,
-            is_completed: status?.is_completed || false,
-          })),
-        };
-        // Add the new remark to the state immediately
-        setRemarks(prev => [...prev, processedRemark]);
+      if (response.status === 201) {
+        const addedRemark = response.data.remarks; // backend returns { remarks: newRemark }
+        setRemarks(prev => [addedRemark, ...prev]);
       }
-      fetchRemarks();
       setNewRemark("");
     } catch (error) {
       console.log("Error adding remark:", error);
-    }
-  };
-
-  const handleUpdateStatus = async (remarkId, isCompleted) => {
-    console.log(remarkId, isCompleted, userId, "ss");
-    try {
-      const response = await axios.put(`${backend_API}/remark/update-status/${remarkId}`, {
-        is_completed: isCompleted,
-        userId: userId,
-      });
-      console.log(response, "res.update");
-      if (response.status === 200) {
-        setRemarks((prevRemarks) =>
-          prevRemarks.map((r) =>
-            r._id === remarkId
-              ? {
-                ...r,
-                userStatus: r.userStatus.map((status) =>
-                  status.userId.toString() === userId
-                    ? { ...status, is_completed: isCompleted }
-                    : status
-                ),
-              }
-              : r
-          )
-        );
-        toast.success("remark status updated!!");
-      }
-    } catch (error) {
-      console.error("Error updating remark status:", error);
     }
   };
 
@@ -121,7 +72,7 @@ const RemarkPage = () => {
         <div className="p-4 bg-light" style={{ minHeight: "100vh" }}>
           <div className="container">
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <h2 className="text-dark mb-0">Remark Checklist</h2>
+              <h2 className="text-dark mb-0">Communication Logs</h2>
               <button onClick={() => navigate(-1)} className="btn btn-dark btn-sm btn-primary">Back</button>
             </div>
 
@@ -143,34 +94,19 @@ const RemarkPage = () => {
             <div className="row g-4">
               {remarks?.map((remark) => (
                 <div key={remark?._id} className="col-12">
-                  <div className={`card shadow-sm ${remark?.userStatus[0]?.is_completed ? "bg-light" : ""}`}>
+                  <div className="card shadow-sm border-0 border-start border-4 border-primary">
                     <div className="card-body d-flex justify-content-between align-items-center">
-                      <div className="form-check">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          id={`remark-${remark?._id}`}
-                          checked={remark?.userStatus[0]?.is_completed}
-                          onChange={() =>
-                            handleUpdateStatus(remark._id, !remark?.userStatus[0]?.is_completed)
-                          }
-                          style={{ width: "1.2em", height: "1.2em" }}
-                        />
+                      <div className="d-flex flex-column">
+                        <span className="text-dark fs-5 mb-1">{remark.remark}</span>
+                        <small className="text-muted">
+                          {remark.createdAt ? format(new Date(remark.createdAt), "PPpp") : "Unknown Date"}
+                        </small>
                       </div>
-                      <span className={`flex-grow-1 mx-3 ${remark?.userStatus[0]?.is_completed ? "text-muted" : ""}`}>
-                        {remark.remark}
-                      </span>
-                      <span
-                        className={`badge ${remark?.userStatus[0]?.is_completed ? "bg-success" : "bg-secondary"}`}
-                      >
-                        {remark?.userStatus[0]?.is_completed ? "Completed" : "Pending"}
-                      </span>
                       <button
-                        className="btn btn-sm btn-danger ms-3"
-                        onClick={() => handleDeleteRemark(remark._id)}
+                        className="btn btn-sm btn-outline-danger ms-3"
+                        onClick={() => setRemarkToDelete(remark._id)}
                       >
-                        delete
-                        {/* ❌ */}
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -181,6 +117,33 @@ const RemarkPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {remarkToDelete && (
+        <div className="modals">
+          <div className="modal-contents text-center">
+            <h5 className="py-3">Confirm Deletion</h5>
+            <p className="pb-3">Are you sure you want to delete this log entry?</p>
+            <div className="d-flex justify-content-center gap-3">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setRemarkToDelete(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={() => {
+                  handleDeleteRemark(remarkToDelete);
+                  setRemarkToDelete(null);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

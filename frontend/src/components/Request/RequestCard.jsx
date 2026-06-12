@@ -342,7 +342,14 @@ const RequestCard = ({ request, userRole, setData, onRate }) => {
             ? request?.userRatingbyprovider?.value
             : request?.providerRatingbySender?.value;
 
-    const showRateBtn = request.status === "completed";
+    let showRateBtn = false;
+    if (request.status === "completed") {
+        if (userRole === "sender" && !request?.providerRatingbySender?.value) {
+            showRateBtn = true;
+        } else if (userRole === "receiver" && !request?.userRatingbyprovider?.value) {
+            showRateBtn = true;
+        }
+    }
 
     return (
         <div
@@ -387,11 +394,11 @@ const RequestCard = ({ request, userRole, setData, onRate }) => {
                     </p>
                 </div>
 
-                {/* <div className="flex items-center mt-2 text-sm gap-0 lg:gap-1">
+                <div className="flex items-center mt-2 text-sm gap-0 lg:gap-1">
                     <span className="text-gray-700 pe-1">Provider:</span>
                     {renderStars(request?.providerRatingbySender?.value || 0)}
                     <span>{request?.providerRatingbySender?.value || 0}</span>
-                </div> */}
+                </div>
 
                 <div className="flex items-center mt-1 text-sm gap-0 lg:gap-1">
                     <span className="text-gray-700 pe-1">User:</span>

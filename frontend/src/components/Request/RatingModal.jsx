@@ -13,7 +13,7 @@ const RatingModal = ({ target, onClose, setData, userRole }) => {
     // console.log("🚀 setData is", setData, typeof setData);
 
     const [rating, setRating] = useState(0);
-    const [comment, setComment] = useState("");
+    const [comment, setComment] = useState("Thank you");
     const token = getAuthToken();
 
     const renderStars = (value = 0, max = 10) => {
@@ -48,19 +48,24 @@ const RatingModal = ({ target, onClose, setData, userRole }) => {
             if (response.status === 200) {
                 toast.success(response.data.message || "Rating submitted");
                 setData((prev) =>
-                    prev.map((req) =>
-                        req.requestId === target.requestId
-                            ? { ...req, status: "rated", userRating: rating }
-                            : req
-                    )
+                    prev.map((req) => {
+                        if (req.requestId === target.requestId) {
+                            if (userRole === "sender") {
+                                return { ...req, providerRatingbySender: { value: rating } };
+                            } else {
+                                return { ...req, userRatingbyprovider: { value: rating } };
+                            }
+                        }
+                        return req;
+                    })
                 );
                 onClose();
             } else {
                 toast.error("Rating failed");
             }
         } catch (err) {
-            console.log(err);
-            toast.error("Server error while rating");
+            console.log("Rating error:", err);
+            toast.error(err?.response?.data?.message || "Server error while rating");
         }
     };
 

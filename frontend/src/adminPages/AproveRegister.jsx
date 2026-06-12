@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { MdOutlineDeleteOutline, MdDateRange } from "react-icons/md";
 import { FaEdit, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import AdminHeader from '../admincomponents/AdminHeader';
 import AdminSidebar from '../admincomponents/AdminSidebar';
 import DatePicker from 'react-datepicker';
@@ -14,22 +14,35 @@ import { RxCrossCircled } from "react-icons/rx";
 
 const backend_API = import.meta.env.VITE_API_URL || "http://localhost:3000";;
 
-const UserDetailsModal = ({ user, onClose }) => {
+const UserDetailsModal = ({ user: initialUser, onClose }) => {
+    const [localUser, setLocalUser] = useState(initialUser);
+    const user = localUser;
     const [zoomedIndex, setZoomedIndex] = useState(null);
     const [zoomPic, setZoompic] = useState(null)
-    const [permanentAddress, setPermanentAddress] = useState(user.permanentAddress || "");
+    const [permanentAddress, setPermanentAddress] = useState(user.address?.area || "");
     const [aadharNumber, setAadharNumber] = useState(user.aadharNumber || "");
+    const [name, setName] = useState(user.name || "");
     const [loading, setLoading] = useState(false);
     const [userId, setUserId] = useState(user._id);
     const [rejectStep, setRejectStep] = useState("");
     const [rejectReason, setRejectReason] = useState("");
     const navigate = useNavigate();
 
-    const aadharImages = [user.frontAadhar, user.backAadhar];
+    const galleryImages = [user.profilePic, user.frontAadhar, user.backAadhar].filter(Boolean);
 
     if (!user) return null;
 
     const approveUser = async (userId) => {
+        if (!user.paymentVerified) {
+            return toast.error("Cannot approve: Payment is not completed yet");
+        }
+        if (!user.frontAadhar || !user.backAadhar) {
+            return toast.error("Cannot approve: Aadhar card photos are missing");
+        }
+        if (!user.profilePic) {
+            return toast.error("Cannot approve: Profile photo is missing");
+        }
+
         try {
             const response = await axios.put(`${backend_API}/auth/approveUser`, { userId }, {
                 headers: {
@@ -74,17 +87,27 @@ const UserDetailsModal = ({ user, onClose }) => {
     };
 
     const handleSave = async () => {
-        console.log(permanentAddress, aadharNumber, userId, "permanentAddress, aadharNumber");
+        console.log(permanentAddress, aadharNumber, name, userId, "permanentAddress, aadharNumber, name");
         try {
             setLoading(true);
             const response = await axios.put(`${backend_API}/auth/updateUserAddressAndAadhar`, {
                 permanentAddress,
                 aadharNumber,
+                name,
                 userId,
             });
             console.log(response.data);
             if (response.status === 200) {
                 toast.success(response?.data?.message);
+                setLocalUser(prev => ({
+                    ...prev,
+                    name,
+                    aadharNumber,
+                    address: {
+                        ...prev.address,
+                        area: permanentAddress
+                    }
+                }));
             }
         } catch (error) {
             console.log("Error updating user details:", error);
@@ -100,14 +123,10 @@ const UserDetailsModal = ({ user, onClose }) => {
 
     const closeZoomModal = () => {
         setZoomedIndex(null);
-        setZoompic(null)
     };
 
-    const openZoomPicModal = (image) => setZoompic(image);
-    // const closeZoomModal = () => setZoomedImage(null);
-
     const handlePrevNext = (step) => {
-        setZoomedIndex((prevIndex) => (prevIndex + step + aadharImages.length) % aadharImages.length);
+        setZoomedIndex((prevIndex) => (prevIndex + step + galleryImages.length) % galleryImages.length);
     };
 
     return (
@@ -121,7 +140,10 @@ const UserDetailsModal = ({ user, onClose }) => {
                             <tr>
                                 <td className="border border-gray-300 px-4 py-2 font-semibold">ProfilePic</td>
                                 <td className="border border-gray-300 px-4 py-2">
-                                    <img src={user.profilePic} width={50} alt="Profile" onClick={() => openZoomPicModal(user.profilePic)} />
+                                    <img src={user.profilePic} width={50} alt="Profile" className="cursor-pointer" onClick={() => {
+                                        const galleryIndex = galleryImages.indexOf(user.profilePic);
+                                        openZoomModal(galleryIndex);
+                                    }} />
                                 </td>
                             </tr>
                             <tr>
@@ -157,16 +179,19 @@ const UserDetailsModal = ({ user, onClose }) => {
                             <tr>
                                 <td className="border border-gray-300 px-4 py-2 font-semibold">Aadhar</td>
                                 <td className="border border-gray-300 px-4 py-2 flex gap-2">
-                                    {aadharImages.map((img, index) => (
-                                        <img
-                                            key={index}
-                                            src={img}
-                                            width={50}
-                                            alt={`Aadhar ${index + 1}`}
-                                            className="cursor-pointer"
-                                            onClick={() => openZoomModal(index)}
-                                        />
-                                    ))}
+                                    {[user.frontAadhar, user.backAadhar].filter(Boolean).map((img, index) => {
+                                        const galleryIndex = galleryImages.indexOf(img);
+                                        return (
+                                            <img
+                                                key={index}
+                                                src={img}
+                                                width={50}
+                                                alt={`Aadhar ${index + 1}`}
+                                                className="cursor-pointer"
+                                                onClick={() => openZoomModal(galleryIndex)}
+                                            />
+                                        );
+                                    })}
                                 </td>
                             </tr>
                             <tr>
@@ -203,10 +228,11 @@ const UserDetailsModal = ({ user, onClose }) => {
                         <button onClick={closeZoomModal} className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full">✖</button>
                         <div className="flex items-center">
                             <button onClick={() => handlePrevNext(-1)} className="px-4 py-2 bg-gray-300 rounded">⬅</button>
-                            <img src={aadharImages[zoomedIndex]} className="max-w-[70%] max-h-[90vh] object-contain mx-4" alt="Zoomed Aadhar" />
+                            <img src={galleryImages[zoomedIndex]} className="max-w-[70%] max-h-[90vh] object-contain mx-4" alt="Zoomed Image" />
                             <button onClick={() => handlePrevNext(1)} className="px-4 py-2 bg-gray-300 rounded">➡</button>
                         </div>
                         <div className="flex flex-col gap-4 w-1/3 p-4">
+                            <input type="text" className="border p-2 w-full" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} />
                             <input type="text" className="border p-2 w-full" placeholder="Aadhar Number" value={aadharNumber} onChange={(e) => setAadharNumber(e.target.value)} />
                             <input type="text" className="border p-2 w-full" placeholder="Permanent Address" value={permanentAddress} onChange={(e) => setPermanentAddress(e.target.value)} />
                             <button onClick={handleSave} className="bg-blue-500 text-white px-4 py-2 rounded" disabled={loading}>{loading ? "Saving..." : "Save"}</button>
@@ -244,6 +270,7 @@ const AllUsers = () => {
     const [selectedDate, setSelectedDate] = useState(null);
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
+    const [paymentToToggle, setPaymentToToggle] = useState(null);
     const navigate = useNavigate();
 
     const fetchData = async () => {
@@ -264,6 +291,37 @@ const AllUsers = () => {
         } catch (error) {
             console.error('Error:', error.message);
             toast(error?.response?.data?.message)
+        }
+    };
+
+    const handleReferredUserClick = async (referredById) => {
+        console.log(referredById, "referredById");
+        if (!referredById) return;
+
+        try {
+            const response = await axios.get(`${backend_API}/auth/getUserById/${referredById}`);
+            setSelectedUser(response.data.user);
+        } catch (error) {
+            console.error("Error fetching referred user:", error.message);
+            toast(error?.response?.data?.message || "Failed to fetch referred user details");
+        }
+    };
+
+    const handlePaymentToggle = async (userId, currentStatus) => {
+        try {
+            const newStatus = !currentStatus;
+            const res = await axios.post(`${backend_API}/payment/paymentVerified`, {
+                userId,
+                paymentVerified: newStatus
+            });
+            if (res.data.success) {
+                setUserList(prev => prev.map(u => u._id === userId ? { ...u, paymentVerified: newStatus } : u));
+                toast.success(`Payment marked as ${newStatus ? 'Verified' : 'Unverified'}`);
+                setPaymentToToggle(null);
+            }
+        } catch (error) {
+            toast.error("Failed to update payment status");
+            console.error(error);
         }
     };
 
@@ -342,19 +400,6 @@ const AllUsers = () => {
             }
             return 0;
         });
-
-    const handleReferredUserClick = async (referredById) => {
-        console.log(referredById, "referredById");
-        if (!referredById) return;
-
-        try {
-            const response = await axios.get(`${backend_API}/auth/getUserById/${referredById}`);
-            setSelectedUser(response.data.user);
-        } catch (error) {
-            console.error("Error fetching referred user:", error.message);
-            toast(error?.response?.data?.message || "Failed to fetch referred user details");
-        }
-    };
 
     return (
         <>
@@ -470,6 +515,7 @@ const AllUsers = () => {
                                             <th>Referred By</th>
                                             <th>Payment Status</th>
                                             <th>Date & Time</th>
+                                            <th>Remarks</th>
                                             <th>Approve</th>
                                             <th>Action</th>
                                         </tr>
@@ -495,19 +541,21 @@ const AllUsers = () => {
                                                 </td>
                                                 <td>
                                                     {user.paymentVerified ? (
-                                                        <button className="btn btn-success btn-sm flex items-center gap-1" title="Payment Verified">
+                                                        <button 
+                                                            className="btn btn-success btn-sm flex items-center gap-1" 
+                                                            title="Payment Verified"
+                                                            onClick={(e) => { e.stopPropagation(); setPaymentToToggle({ userId: user._id, status: true }); }}
+                                                        >
                                                             <span className="text-white flex items-center gap-2">Payment <SiTicktick /></span>
                                                         </button>
-
-
                                                     ) : (
                                                         <button
                                                             className="btn btn-danger btn-sm"
                                                             title="Payment Not Verified"
+                                                            onClick={(e) => { e.stopPropagation(); setPaymentToToggle({ userId: user._id, status: false }); }}
                                                         >
                                                             <span className="text-white flex items-center gap-2">Payment <RxCrossCircled size={17} className='' /></span>
                                                         </button>
-
                                                     )}
                                                 </td>
                                                 <td>
@@ -520,6 +568,15 @@ const AllUsers = () => {
                                                         second: "2-digit",
                                                         hour12: true, // Enable 12-hour format
                                                     })}
+                                                </td>
+                                                <td>
+                                                    <Link
+                                                        className="btn btn-dark btn-sm text-white"
+                                                        to="/admin/users/addremark"
+                                                        state={{ userId: user._id }}
+                                                    >
+                                                        Add Remarks
+                                                    </Link>
                                                 </td>
                                                 <td>
                                                     <button
@@ -555,6 +612,33 @@ const AllUsers = () => {
                 </section>
 
                 {selectedUser && <UserDetailsModal user={selectedUser} onClose={() => setSelectedUser(null)} />}
+                
+                {paymentToToggle && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-[60]">
+                        <div className="bg-white p-6 rounded-lg text-center shadow-lg w-96">
+                            <h3 className="text-xl font-semibold mb-4">
+                                {paymentToToggle.status ? "Unverify Payment?" : "Verify Payment?"}
+                            </h3>
+                            <p className="mb-6 text-gray-600">
+                                Are you sure you want to {paymentToToggle.status ? "mark this payment as unverified" : "verify this payment"}?
+                            </p>
+                            <div className="flex justify-center gap-4">
+                                <button
+                                    className="btn btn-secondary px-6"
+                                    onClick={() => setPaymentToToggle(null)}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    className={`btn px-6 ${paymentToToggle.status ? "btn-danger" : "btn-success"}`}
+                                    onClick={() => handlePaymentToggle(paymentToToggle.userId, paymentToToggle.status)}
+                                >
+                                    Yes, {paymentToToggle.status ? "Unverify" : "Verify"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </>
     );

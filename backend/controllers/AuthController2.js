@@ -68,7 +68,7 @@ const getUsersByBCategory = async (req, res) => {
 
 const updateUserAddressAndAadhar = async (req, res) => {
   try {
-    const { userId, permanentAddress, aadharNumber } = req.body;
+    const { userId, permanentAddress, aadharNumber, name } = req.body;
 
     if (!userId) {
       return res.status(400).json({
@@ -109,6 +109,7 @@ const updateUserAddressAndAadhar = async (req, res) => {
     const updateFields = {};
     if (permanentAddress) updateFields.permanentAddress = permanentAddress;
     if (aadharNumber) updateFields.aadharNumber = aadharNumber;
+    if (name) updateFields.name = name;
 
     if (Object.keys(updateFields).length === 0) {
       return res.status(400).json({
@@ -125,7 +126,7 @@ const updateUserAddressAndAadhar = async (req, res) => {
         new: true,
         runValidators: true,
       }
-    ).select("permanentAddress aadharNumber"); // Return only required fields
+    ).select("name permanentAddress aadharNumber"); // Return only required fields
 
     if (!updatedUser) {
       return res.status(404).json({

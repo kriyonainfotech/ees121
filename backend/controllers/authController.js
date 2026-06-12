@@ -624,6 +624,16 @@ const approveUser = async (req, res) => {
         .send({ success: false, message: "User not found" });
     }
 
+    if (!user.paymentVerified) {
+      return res.status(400).send({ success: false, message: "Cannot approve: Payment is not completed yet" });
+    }
+    if (!user.frontAadhar || !user.backAadhar) {
+      return res.status(400).send({ success: false, message: "Cannot approve: Aadhar card photos are missing" });
+    }
+    if (!user.profilePic) {
+      return res.status(400).send({ success: false, message: "Cannot approve: Profile photo is missing" });
+    }
+
     // Update the user's approval status
     user.isAdminApproved = true;
     await user.save();

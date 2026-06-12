@@ -80,8 +80,14 @@ const ActiveRequestsTable = () => {
                                                     year: "numeric",
                                                 })}
                                             </td>
-                                            <td className="px-4 py-3">{req.sender?.name || "-"}</td>
-                                            <td className="px-4 py-3">{req.receiver?.name || "-"}</td>
+                                            <td className="px-4 py-3">
+                                                <div>{req.sender?.name || "-"}</div>
+                                                {req.sender?.phone && <div className="text-xs text-gray-500">{req.sender.phone}</div>}
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div>{req.receiver?.name || "-"}</div>
+                                                {req.receiver?.phone && <div className="text-xs text-gray-500">{req.receiver.phone}</div>}
+                                            </td>
                                             <td className="px-4 py-3">
                                                 <span
                                                     className={`inline-block rounded-full px-3 py-1 text-xs font-semibold text-white ${statusColors[req.status] || "bg-gray-500"

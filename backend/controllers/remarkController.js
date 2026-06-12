@@ -14,10 +14,10 @@ exports.addRemark = async (req, res) => {
       });
     }
 
-    // Create a new remark with initial user status
+    // Create a new remark
     const newRemark = await Remark.create({
       remark,
-      userStatus: [{ userId, is_completed: false }], // Default status for the user
+      userId,
     });
 
     res.status(201).json({
@@ -39,31 +39,10 @@ exports.getRemarks = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const remarks = await Remark.find().exec(); // Use .exec() to execute the query and return an array
-
-    // Map through the remarks and add the specific user's status
-    const updatedRemarks = remarks.map((remark) => {
-      const userStatus = remark.userStatus.find(
-        (status) => status.userId.toString() === userId.toString()
-      );
-
-      if (userStatus) {
-        return {
-          ...remark.toObject(), // Convert Mongoose doc to a plain object
-          userStatus: userStatus, // Add the specific user status
-        };
-      } else {
-        return {
-          ...remark.toObject(),
-          userStatus: { userId, is_completed: false }, // Default status if no entry exists
-        };
-      }
-    });
-
-    console.log(updatedRemarks, "remarks");
+    const remarks = await Remark.find({ userId }).sort({ createdAt: -1 });
 
     // Return only the remarks specific to the user
-    res.status(200).json({ success: true, remarks: updatedRemarks });
+    res.status(200).json({ success: true, remarks });
   } catch (error) {
     console.log(error);
     res

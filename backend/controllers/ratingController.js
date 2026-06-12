@@ -87,7 +87,7 @@ const addRating = async (req, res) => {
     const ratings = await Rating.aggregate([
       {
         $match: {
-          ratedUser: ratedUserId,
+          ratedUser: new mongoose.Types.ObjectId(ratedUserId.toString()),
           ratingType: ratingType,
         },
       },
@@ -100,7 +100,8 @@ const addRating = async (req, res) => {
       },
     ]);
 
-    const { average, count } = ratings[0];
+    const average = ratings.length > 0 ? ratings[0].average : ratingValue;
+    const count = ratings.length > 0 ? ratings[0].count : 1;
 
     // Update user record
     const updateField =

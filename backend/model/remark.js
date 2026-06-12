@@ -7,12 +7,11 @@ const RemarkSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    userStatus: [
-      {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        is_completed: { type: Boolean, default: false },
-      },
-    ],
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true }
 );
