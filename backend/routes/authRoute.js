@@ -16,6 +16,7 @@ const {
   setUserStatus,
   approveUser,
   rejectUserStep,
+  rotateUserImage,
   updateProfileMobile,
   getUserMobile,
   setUserStatusMobile,
@@ -149,6 +150,7 @@ router.post(
 router.post("/loginUserweb", loginUserweb);
 router.put("/approveUser", approveUser);
 router.put("/rejectUserStep", rejectUserStep);
+router.post("/rotate-user-image", verifyToken, isAdmin, rotateUserImage);
 
 router.post(
   "/updateProfile",

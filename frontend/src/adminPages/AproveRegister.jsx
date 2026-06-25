@@ -129,6 +129,45 @@ const UserDetailsModal = ({ user: initialUser, onClose }) => {
         setZoomedIndex((prevIndex) => (prevIndex + step + galleryImages.length) % galleryImages.length);
     };
 
+    const handleRotateImage = async (direction) => {
+        if (zoomedIndex === null) return;
+        const currentImageUrl = galleryImages[zoomedIndex];
+        let imageField = "";
+        if (currentImageUrl === user.profilePic) imageField = "profilePic";
+        else if (currentImageUrl === user.frontAadhar) imageField = "frontAadhar";
+        else if (currentImageUrl === user.backAadhar) imageField = "backAadhar";
+
+        if (!imageField) return;
+
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('token');
+            const response = await axios.post(`${backend_API}/auth/rotate-user-image`, {
+                userId: user._id,
+                imageField,
+                direction
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.data.success) {
+                toast.success("Image rotated successfully");
+                setLocalUser(prev => ({
+                    ...prev,
+                    [imageField]: response.data.url
+                }));
+            }
+        } catch (error) {
+            console.error("Error rotating image:", error);
+            toast.error(error?.response?.data?.message || "Failed to rotate image");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
 
@@ -226,10 +265,20 @@ const UserDetailsModal = ({ user: initialUser, onClose }) => {
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-[60]">
                     <div className="bg-white p-4 rounded-lg flex relative">
                         <button onClick={closeZoomModal} className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full">✖</button>
-                        <div className="flex items-center">
-                            <button onClick={() => handlePrevNext(-1)} className="px-4 py-2 bg-gray-300 rounded">⬅</button>
-                            <img src={galleryImages[zoomedIndex]} className="max-w-[70%] max-h-[90vh] object-contain mx-4" alt="Zoomed Image" />
-                            <button onClick={() => handlePrevNext(1)} className="px-4 py-2 bg-gray-300 rounded">➡</button>
+                        <div className="flex flex-col items-center">
+                            <div className="flex items-center">
+                                <button onClick={() => handlePrevNext(-1)} className="px-4 py-2 bg-gray-300 rounded">⬅</button>
+                                <img src={galleryImages[zoomedIndex]} className="max-w-[70%] max-h-[80vh] object-contain mx-4" alt="Zoomed Image" />
+                                <button onClick={() => handlePrevNext(1)} className="px-4 py-2 bg-gray-300 rounded">➡</button>
+                            </div>
+                            <div className="flex gap-4 mt-4">
+                                <button onClick={() => handleRotateImage("left")} disabled={loading} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2">
+                                    <span className="text-xl">↺</span> Rotate Left
+                                </button>
+                                <button onClick={() => handleRotateImage("right")} disabled={loading} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2">
+                                    Rotate Right <span className="text-xl">↻</span>
+                                </button>
+                            </div>
                         </div>
                         <div className="flex flex-col gap-4 w-1/3 p-4">
                             <input type="text" className="border p-2 w-full" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} />
@@ -281,7 +330,7 @@ const AllUsers = () => {
             const data = await response.data;
             console.log(data, 'data');
             const filteredUsers = data.user
-                .filter(user => user.isAdminApproved === false)
+                .filter(user => user.isAdminApproved === false && !user.rejectedStep)
                 .map(user => ({
                     ...user,
                     referredBy: Array.isArray(user.referredBy) ? user.referredBy : []

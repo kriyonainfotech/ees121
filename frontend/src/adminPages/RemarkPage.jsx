@@ -17,10 +17,25 @@ const RemarkPage = () => {
   const [remarks, setRemarks] = useState([]);
   const [newRemark, setNewRemark] = useState("");
   const [remarkToDelete, setRemarkToDelete] = useState(null);
+  const [remarkUser, setRemarkUser] = useState(null);
 
   useEffect(() => {
-    fetchRemarks();
+    if (userId) {
+      fetchRemarks();
+      fetchUser();
+    }
   }, [userId]);
+
+  const fetchUser = async () => {
+    try {
+      const response = await axios.get(`${backend_API}/auth/getUserById/${userId}`);
+      if (response.status === 200) {
+        setRemarkUser(response.data.user);
+      }
+    } catch (error) {
+      console.log("Error fetching user details:", error);
+    }
+  };
 
   const fetchRemarks = async () => {
     try {
@@ -76,18 +91,48 @@ const RemarkPage = () => {
               <button onClick={() => navigate(-1)} className="btn btn-dark btn-sm btn-primary">Back</button>
             </div>
 
+            {/* User Details Card */}
+            {remarkUser && (
+              <div className="card mb-4 shadow-sm border-0 border-start border-4 border-info">
+                <div className="card-body d-flex align-items-center">
+                  {remarkUser.profilePic ? (
+                    <img src={remarkUser.profilePic} alt="Profile" className="rounded-circle me-3" style={{ width: '60px', height: '60px', objectFit: 'cover' }} />
+                  ) : (
+                    <div className="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-3" style={{ width: '60px', height: '60px' }}>
+                      <span className="fs-3">{remarkUser.name?.charAt(0)?.toUpperCase()}</span>
+                    </div>
+                  )}
+                  <div>
+                    <h5 className="mb-1 text-dark fw-bold">{remarkUser.name}</h5>
+                    <p className="mb-0 text-muted">
+                      <strong>Phone:</strong> {remarkUser.phone} | <strong>Email:</strong> {remarkUser.email}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Add Remark Input */}
-            <div className="mb-3 d-flex">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Add a new remark..."
-                value={newRemark}
-                onChange={(e) => setNewRemark(e.target.value)}
-              />
-              <button className="btn btn-sm btn-primary ms-2" onClick={handleAddRemark}>
-                Add
-              </button>
+            <div className="card shadow-sm border-0 mb-4 bg-white" style={{ borderRadius: '15px' }}>
+              <div className="card-body p-3 d-flex align-items-center gap-3">
+                <input
+                  type="text"
+                  className="form-control border-0 bg-light px-4 py-3 fs-6"
+                  style={{ borderRadius: '30px', boxShadow: 'none' }}
+                  placeholder="Type a new remark here..."
+                  value={newRemark}
+                  onChange={(e) => setNewRemark(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddRemark()}
+                />
+                <button 
+                  className="btn btn-primary px-4 py-3 fw-bold" 
+                  style={{ borderRadius: '30px', whiteSpace: 'nowrap' }}
+                  onClick={handleAddRemark}
+                  disabled={!newRemark.trim()}
+                >
+                  Add Remark
+                </button>
+              </div>
             </div>
 
             {/* Remark List */}

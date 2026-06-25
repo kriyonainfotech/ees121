@@ -15,6 +15,7 @@ const ManageBanner = () => {
     const [selectedUserId, setSelectedUserId] = useState("");
     const [editBannerData, setEditBannerData] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [zoomedBanner, setZoomedBanner] = useState(null);
 
     const fetchBanners = async () => {
         try {
@@ -217,7 +218,7 @@ const ManageBanner = () => {
                                                 <tr key={banner._id}>
                                                     <td>{index + 1}</td>
                                                     <td>
-                                                        <img src={banner.imageUrl} alt="Banner" width={100} className="rounded border" />
+                                                        <img src={banner.imageUrl} alt="Banner" width={100} className="rounded border cursor-pointer" onClick={() => setZoomedBanner(banner.imageUrl)} />
                                                     </td>
                                                     <td>
                                                         <div className="font-bold">{banner.userId?.name || 'Unknown'}</div>
@@ -268,8 +269,27 @@ const ManageBanner = () => {
                     </div>
                 </section>
             </div>
+
+            {zoomedBanner && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1060, backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ position: 'relative', padding: '1rem' }}>
+                        <button
+                            onClick={() => setZoomedBanner(null)}
+                            className="btn btn-danger rounded-circle"
+                            style={{ position: 'absolute', top: '-15px', right: '-15px', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1061 }}
+                        >
+                            <i className="bi bi-x-lg fw-bold"></i>✖
+                        </button>
+                        <img
+                            src={zoomedBanner}
+                            style={{ maxWidth: '90vw', maxHeight: '85vh', objectFit: 'contain', borderRadius: '8px' }}
+                            alt="Zoomed Banner"
+                        />
+                    </div>
+                </div>
+            )}
         </>
     );
-}
+};
 
 export default ManageBanner;

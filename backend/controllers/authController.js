@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const { v4: uuidv4 } = require("uuid");
-const { uploadToS3 } = require("../services/authService");
+const { uploadToS3, rotateImageInS3 } = require("../services/authService");
 const AWS = require("aws-sdk");
 const WithdrawModel = require("../model/withdrawal")
 
@@ -1728,6 +1728,36 @@ const getUserById = async (req, res) => {
   }
 };
 
+const rotateUserImage = async (req, res) => {
+  try {
+    const { userId, imageField, direction } = req.body;
+    if (!userId || !imageField || !direction) {
+      return res.status(400).json({ success: false, message: "userId, imageField, and direction are required." });
+    }
+
+    const validFields = ["frontAadhar", "backAadhar", "profilePic"];
+    if (!validFields.includes(imageField)) {
+      return res.status(400).json({ success: false, message: "Invalid image field." });
+    }
+
+    const user = await UserModel.findById(userId);
+    if (!user || !user[imageField]) {
+      return res.status(404).json({ success: false, message: "User or image not found." });
+    }
+
+    const oldUrl = user[imageField];
+    const newUrl = await rotateImageInS3(oldUrl, userId, imageField, direction);
+
+    user[imageField] = newUrl;
+    await user.save();
+
+    return res.status(200).json({ success: true, message: "Image rotated successfully.", url: newUrl });
+  } catch (error) {
+    console.error("Error in rotateUserImage:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -1758,4 +1788,5 @@ module.exports = {
   updateRegistrationStep1,
   checkUserStatus,
   rejectUserStep,
+  rotateUserImage,
 };

@@ -77,6 +77,55 @@ const UserDetailsModal = ({ user, onClose, onApprove, setSelectedUser }) => {
     );
   };
 
+  const handleRotateImage = async (direction, isProfile = false) => {
+    let currentImageUrl = "";
+    let imageField = "";
+
+    if (isProfile) {
+        currentImageUrl = profilePic;
+        imageField = "profilePic";
+    } else {
+        if (zoomedIndex === null) return;
+        currentImageUrl = aadharImages[zoomedIndex];
+        if (currentImageUrl === user.frontAadhar) imageField = "frontAadhar";
+        else if (currentImageUrl === user.backAadhar) imageField = "backAadhar";
+    }
+
+    if (!imageField) return;
+
+    try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        const response = await axios.post(`${backend_API}/auth/rotate-user-image`, {
+            userId: user._id,
+            imageField,
+            direction
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.data.success) {
+            toast.success("Image rotated successfully");
+            if (isProfile) {
+                setProfilePic(response.data.url);
+            }
+            const updatedUser = {
+                ...user,
+                [imageField]: response.data.url
+            };
+            setSelectedUser(updatedUser);
+        }
+    } catch (error) {
+        console.error("Error rotating image:", error);
+        toast.error(error?.response?.data?.message || "Failed to rotate image");
+    } finally {
+        setLoading(false);
+    }
+  };
+
   // const handleDeleteAadhar = async () => {
   //   try {
   //     setLoading(true);
@@ -508,24 +557,34 @@ const UserDetailsModal = ({ user, onClose, onApprove, setSelectedUser }) => {
             >
               ✖
             </button>
-            <div className="flex items-center">
-              <button
-                onClick={() => handlePrevNext(-1)}
-                className="px-4 py-2 bg-gray-300 rounded"
-              >
-                ⬅
-              </button>
-              <img
-                src={aadharImages[zoomedIndex]}
-                className="max-w-[70%] max-h-[90vh] object-contain mx-4"
-                alt="Zoomed Aadhar"
-              />
-              <button
-                onClick={() => handlePrevNext(1)}
-                className="px-4 py-2 bg-gray-300 rounded"
-              >
-                ➡
-              </button>
+            <div className="flex flex-col items-center">
+              <div className="flex items-center">
+                <button
+                  onClick={() => handlePrevNext(-1)}
+                  className="px-4 py-2 bg-gray-300 rounded"
+                >
+                  ⬅
+                </button>
+                <img
+                  src={aadharImages[zoomedIndex]}
+                  className="max-w-[70%] max-h-[80vh] object-contain mx-4"
+                  alt="Zoomed Aadhar"
+                />
+                <button
+                  onClick={() => handlePrevNext(1)}
+                  className="px-4 py-2 bg-gray-300 rounded"
+                >
+                  ➡
+                </button>
+              </div>
+              <div className="flex gap-4 mt-4">
+                  <button onClick={() => handleRotateImage("left")} disabled={loading} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2">
+                      <span className="text-xl">↺</span> Rotate Left
+                  </button>
+                  <button onClick={() => handleRotateImage("right")} disabled={loading} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2">
+                      Rotate Right <span className="text-xl">↻</span>
+                  </button>
+              </div>
             </div>
             <div className="flex flex-col gap-4 w-1/3 p-4">
               <input
@@ -564,10 +623,18 @@ const UserDetailsModal = ({ user, onClose, onApprove, setSelectedUser }) => {
               ✖
             </button>
             <img
-              src={user.profilePic}
-              className="max-w-full max-h-[90vh] object-contain"
+              src={profilePic}
+              className="max-w-full max-h-[80vh] object-contain"
               alt="Zoomed Profile"
             />
+            <div className="flex gap-4 mt-4 justify-center">
+                <button onClick={() => handleRotateImage("left", true)} disabled={loading} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2">
+                    <span className="text-xl">↺</span> Rotate Left
+                </button>
+                <button onClick={() => handleRotateImage("right", true)} disabled={loading} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2">
+                    Rotate Right <span className="text-xl">↻</span>
+                </button>
+            </div>
           </div>
         </div>
       )}

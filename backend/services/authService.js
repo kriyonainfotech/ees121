@@ -4,6 +4,7 @@ const UserModel = require("../model/user");
 const { sendNotification } = require("../controllers/sendController");
 const AWS = require("aws-sdk");
 const sharp = require("sharp");
+const axios = require("axios");
 const s3 = new AWS.S3({
   region: process.env.AWS_REGION,
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -158,7 +159,42 @@ const uploadToS3 = async (files, userId) => {
   return result;
 };
 
-// ✅ 6. Hash Password
+// ✅ 6. Rotate Image in S3
+const rotateImageInS3 = async (imageUrl, userId, imageField, direction) => {
+  try {
+    // 1. Download image buffer
+    const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
+    const buffer = Buffer.from(response.data, "binary");
+
+    // 2. Rotate using sharp
+    const angle = direction === "right" ? 90 : -90;
+    
+    // Maintain quality and format
+    const rotatedBuffer = await sharp(buffer)
+      .rotate(angle)
+      .resize({ width: 1200, withoutEnlargement: true }) // keep same constraints
+      .jpeg({ quality: 80 })
+      .toBuffer();
+
+    // 3. Upload back to S3 with a new timestamp to bust cache
+    const newKey = `user-images/${userId}/${imageField}_${Date.now()}_rotated.jpg`;
+    
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: newKey,
+      Body: rotatedBuffer,
+      ContentType: "image/jpeg",
+    };
+
+    const uploaded = await s3.upload(params).promise();
+    return uploaded.Location;
+  } catch (error) {
+    console.error("[ERROR] Rotating image failed:", error);
+    throw new Error("Failed to rotate image: " + error.message);
+  }
+};
+
+// ✅ 7. Hash Password
 
 module.exports = {
   validateFiles,
@@ -168,4 +204,5 @@ module.exports = {
   notifyReferrer,
   notifyAdmins,
   uploadToS3,
+  rotateImageInS3,
 };
